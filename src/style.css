@@ -65,6 +65,13 @@ ul {
   display: flex;
   flex-direction: column;
 }
+
+#emoji {
+  border: none;
+  outline: none;
+  font-size: 40px;
+}
+
 #title {
   color: #383530;
   font-size: 34px;
@@ -79,22 +86,25 @@ textarea {
   border: none;
   outline: none;
 }
-.save,
-.remove {
-  width: 60px;
-  border: none;
-  margin-bottom: 5px;
-}
 
-.add-fav {
-  font-weight: 500;
-  background-color: transparent;
+#editor-buttons {
   margin-right: 0;
   margin-left: auto;
+}
+
+.add-fav,
+.remove {
+  font-weight: 500;
+  background-color: transparent;
   border: none;
   width: 70px;
   font-size: 14px;
   cursor: pointer;
+}
+
+.add-fav:hover,
+.remove:hover {
+  background-color: #e8e6e4;
 }
 
 .new-doc {
@@ -111,4 +121,12 @@ textarea {
 .new-doc:hover,
 .doc:hover {
   background-color: #e8e6e4;
+}
+
+a {
+  color: #383530;
+}
+
+#child-docs {
+  line-height: 2;
 }

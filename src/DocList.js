@@ -41,8 +41,6 @@ export default function DocList({ $target, initialState, onClick, onAdd, onToggl
     const $toggled = getItem('toggled', []);
     const $favorites = getItem('favorites', []);
 
-    console.log(this.state);
-
     $list.innerHTML = `
     <h3 id="root">🐻 예임의 Notion</h3>
     <h4>즐겨찾기</h4>

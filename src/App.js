@@ -55,7 +55,6 @@ export default function App({ $target }) {
       timer = setTimeout(async () => {
         const { pathname } = window.location;
         if (pathname === '/') {
-          console.log('new');
           const createdDoc = await request(`/documents`, {
             method: 'POST',
             body: JSON.stringify({
@@ -63,7 +62,6 @@ export default function App({ $target }) {
               parent: id,
             }),
           });
-          console.log(createdDoc);
           push(`/documents/${createdDoc.id}`);
           //editor.setState({ ...createdDoc, content: '' });*/
         } else {
@@ -80,13 +78,18 @@ export default function App({ $target }) {
             setItem('favorites', { ...favList });
           }
           push(`/documents/${id}`);
-          editor.setState({ id, title, content: content });
         }
-      }, 1000);
+      }, 2000);
     },
     onRemove: async (doc) => {
       const favList = getItem('favorites', {});
+      const toggled = getItem('toggled', []);
       const { id } = doc;
+      const togIdx = toggled.indexOf(id);
+      if (togIdx !== -1) {
+        toggled.splice(togIdx, 1);
+        setItem('toggled', toggled);
+      }
       if (favList[id]) {
         delete favList[id];
         setItem('favorites', favList);
@@ -101,6 +104,9 @@ export default function App({ $target }) {
     onFav: async (doc) => {
       const { id, title } = doc;
       setFav(id, title);
+    },
+    onChild: (id) => {
+      push(`/documents/${id}`);
     },
   });
 
@@ -140,12 +146,16 @@ export default function App({ $target }) {
     }
   };
 
+  window.addEventListener('popstate', (e) => {
+    this.route();
+  });
+
   this.route = async () => {
     const { pathname } = window.location;
     await fetchList();
     if (pathname === '/') {
       editor.setState({
-        ...editor.state,
+        id: null,
         title: '',
         content: '',
       });
