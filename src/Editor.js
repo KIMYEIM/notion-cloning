@@ -30,8 +30,8 @@ export default function Editor({ $target, initialState, onEditing, onRemove, onF
           <button class="add-fav">즐겨찾기</button><button class="remove">삭제</button>
           </div>
           <input id="emoji" type="text" name="emoji" autoComplete="off" placeholder="🙂"/>
-          <input id="title" autoComplete="off" type="text" name="title" style="width: 600px" placeholder="제목 없음"/>
-          <textarea id="content" name="content" style="width: 600px; height: 480px; padding: 8px" placeholder="내용을 입력하세요">
+          <input id="title" autoComplete="off" type="text" name="title" placeholder="제목 없음"/>
+          <textarea id="content" name="content" placeholder="내용을 입력하세요">
           </textarea>
           ${
             this.state.documents

@@ -51,6 +51,7 @@ export default function DocList({ $target, initialState, onClick, onAdd, onToggl
       </ul>
     <h4 class="doc">개인 페이지 <button class="add">+</button></h4>
       ${childDoc($toggled, this.state)}
+      <div style="height: 70px"></div>
       <button class="new-doc" >+ 새 페이지</button>
       `;
   };
