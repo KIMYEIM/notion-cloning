@@ -26,6 +26,7 @@ export default function Editor({ $target, initialState, onEditing, onRemove, onF
     console.log('render editor');
     console.error(this.state);
     $editor.innerHTML = `
+          <button class="hide"><<</button>
           <div id="editor-buttons">
           <button class="add-fav">즐겨찾기</button><button class="remove">삭제</button>
           </div>
@@ -55,8 +56,8 @@ export default function Editor({ $target, initialState, onEditing, onRemove, onF
     //   </ul>
     // `;
     //}
-    if (this.state.title !== '') {
-      const [emoji, title] = this.state.title.split('<span>&nbsp;</span>');
+    const [emoji, title] = this.state.title.split('<span>&nbsp;</span>');
+    if (title) {
       $editor.querySelector('[name=emoji]').value = emoji;
       $editor.querySelector('[name=title]').value = title;
     } else {
@@ -86,17 +87,37 @@ export default function Editor({ $target, initialState, onEditing, onRemove, onF
     }
   });
 
+  let isToggled = false;
+
   $editor.addEventListener('click', (e) => {
     const { className } = e.target;
-
-    if (className === 'child') {
-      const $li = e.target.closest('li');
-      const { id } = $li.dataset;
-      onChild(id);
-    } else if (className === 'remove') {
-      onRemove(this.state);
-    } else if (className === 'add-fav') {
-      onFav(this.state);
+    switch (className) {
+      case 'hide':
+        const $list = document.querySelector('#list');
+        if (isToggled) {
+          $list.style.marginLeft = '0px';
+          e.target.textContent = '<<';
+          isToggled = !isToggled;
+        } else {
+          e.target.textContent = '>>';
+          //$list.style.display = 'none';
+          $list.style.marginLeft = '-265px';
+          isToggled = !isToggled;
+        }
+        break;
+      case 'child':
+        const $li = e.target.closest('li');
+        const { id } = $li.dataset;
+        onChild(id);
+        break;
+      case 'remove':
+        onRemove(this.state);
+        break;
+      case 'add-fav':
+        onFav(this.state);
+        break;
+      default:
+        break;
     }
   });
 }

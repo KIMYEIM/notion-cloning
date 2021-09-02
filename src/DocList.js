@@ -58,12 +58,19 @@ export default function DocList({ $target, initialState, onClick, onAdd, onToggl
 
   $list.addEventListener('click', (e) => {
     const { className } = e.target;
-    if (className === 'add' || className === 'new-doc') {
-      onAdd(e.target);
-    } else if (className === 'toggle') {
-      onToggle(e.target);
-    } else if (className === 'doc') {
-      onClick(e.target);
+    switch (className) {
+      case 'add':
+      case 'new-doc':
+        onAdd(e.target);
+        break;
+      case 'toggle':
+        onToggle(e.target);
+        break;
+      case 'doc':
+        onClick(e.target);
+        break;
+      default:
+        break;
     }
   });
 }

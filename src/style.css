@@ -5,11 +5,13 @@ body {
 #list {
   padding-top: 20px;
   line-height: 2;
-  width: 350px;
+  min-width: 260px;
+  max-width: 260px;
   background-color: #f7f6f3;
   font-size: 14px;
   color: #72706c;
   position: relative;
+  transition: margin-left 0.3s;
 }
 
 #list h4,
@@ -64,6 +66,7 @@ ul {
   padding: 30px 20px;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 #emoji {
@@ -109,6 +112,23 @@ textarea {
 
 .add-fav:hover,
 .remove:hover {
+  background-color: #e8e6e4;
+}
+
+.hide {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border: none;
+  background-color: #f7f6f3;
+  border-radius: 0 30% 30% 0;
+  color: #72706c;
+  font-size: 16px;
+  height: 30px;
+  width: 35px;
+}
+
+.hide:hover {
   background-color: #e8e6e4;
 }
 
