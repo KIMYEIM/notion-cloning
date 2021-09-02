@@ -11,7 +11,7 @@
 - [x] Document Tree에서 각 Document 우측에는 + 버튼
   - 해당 버튼을 클릭하면, 클릭한 Document의 하위 Document로 새 Document를 생성하고 편집화면으로 넘김
 - [x] 편집기에는 기본적으로 저장 버튼이 없습니다. Document Save API를 이용해 지속적으로 서버에 저장
-- [ ] History API를 이용해 SPA 형태로 만들기
+- [x] History API를 이용해 SPA 형태로 만들기
 - [x] 루트 URL 접속 시엔 별다른 편집기 선택이 안 된 상태
 - [x] /documents/{documentId} 로 접속시, 해당 Document 의 content를 불러와 편집기에 로딩
 
@@ -23,4 +23,15 @@
 
 ## 내가 추가로 구현한 것
 
-- [x] 제목에 emoji 붙이는 기능 추가
+- [x] Documents 토글 기능
+  - 하위 Documents 존재하면 토글 버튼 생성
+  - 토글 버튼 누르면 해당 Document 아래에 하위 Documents 트리 형태로 렌더링
+  - 토글 버튼 다시 누르면 하위 Documents 화면에서 삭제
+- [x] 즐겨찾기 기능
+  - 에디터 상단의 즐겨찾기 버튼 누르면 왼쪽의 즐겨찾기 리스트에 추가
+  - 다시 누르면 즐겨찾기 리스트에서 삭제
+  - 즐겨찾기 리스트에 추가된 상태에서 제목 변경, 삭제 시 리스트에서도 제목 변경, 삭제
+- [x] 제목에 emoji 붙이는 기능
+  - emoji와 title 칸 분리
+  - emojoi와 title 사이에 delimiter 추가한 뒤 붙여서 서버에 전송
+  - 서버에서 불러올 때 delimiter 기준으로 split한 뒤 렌더링
