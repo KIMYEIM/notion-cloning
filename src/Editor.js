@@ -1,4 +1,4 @@
-export default function Editor({ $target, initialState, onEditing, onRemove, onFav, onChild }) {
+export default function Editor({ $target, initialState, onHide, onEditing, onRemove, onFav, onChild }) {
   const $editor = document.createElement('div');
   $editor.id = 'editor';
   $target.appendChild($editor);
@@ -109,17 +109,18 @@ export default function Editor({ $target, initialState, onEditing, onRemove, onF
     const { className } = e.target;
     switch (className) {
       case 'hide':
-        const $list = document.querySelector('#list');
-        if (isToggled) {
-          $list.style.marginLeft = '0px';
-          e.target.textContent = '<<';
-          isToggled = !isToggled;
-        } else {
-          e.target.textContent = '>>';
-          //$list.style.display = 'none';
-          $list.style.marginLeft = '-265px';
-          isToggled = !isToggled;
-        }
+        onHide(e, isToggled);
+        // const $list = document.querySelector('#list');
+        // if (isToggled) {
+        //   $list.style.marginLeft = '0px';
+        //   e.target.textContent = '<<';
+        //   isToggled = !isToggled;
+        // } else {
+        //   e.target.textContent = '>>';
+        //   //$list.style.display = 'none';
+        //   $list.style.marginLeft = '-265px';
+        //   isToggled = !isToggled;
+        // }
         break;
       case 'child':
         const $li = e.target.closest('li');

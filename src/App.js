@@ -9,8 +9,31 @@ export default function App({ $target }) {
   const $trash = new Trash({
     $target: $target,
     initialState: {},
-    xPos: 0,
-    yPos: 0,
+    xPos: 70,
+    yPos: 290,
+    onRestore: async (docInfo) => {
+      const { parent, title, content } = docInfo;
+      //
+      const createdDoc = await request(`/documents`, {
+        method: 'POST',
+        body: JSON.stringify({
+          title: title,
+          parent: parent,
+        }),
+      });
+      if (content !== '') {
+        await request(`/documents/${createdDoc.id}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            title: title,
+            content: content,
+          }),
+        });
+      }
+      //history.replaceState(null, null, `/documents/${createdDoc.id}`);
+      //editor.setState({ ...createdDoc, content: content });
+      fetchList();
+    },
   });
 
   const docList = new DocList({
@@ -71,12 +94,29 @@ export default function App({ $target }) {
 
   let timer = null;
 
+  let isToggled = false;
+
   const editor = new Editor({
     $target,
     initialState: {
       id: null,
       title: '',
       content: '',
+    },
+    onHide: (e) => {
+      const $list = $target.querySelector('#list');
+      if (isToggled) {
+        $list.style.marginLeft = '0px';
+        e.target.textContent = '<<';
+        isToggled = !isToggled;
+      } else {
+        e.target.textContent = '>>';
+        //$list.style.display = 'none';
+        $list.style.marginLeft = '-265px';
+        const $trashList = $target.querySelector('#trash-list');
+        if ($trashList) $target.removeChild($trashList);
+        isToggled = !isToggled;
+      }
     },
     onEditing: (doc) => {
       const { id, title, content } = doc;
@@ -123,44 +163,46 @@ export default function App({ $target }) {
           //push(`/documents/${id}`);
           fetchList();
         }
-      }, 2000);
+      }, 1000);
     },
     onRemove: async (doc) => {
       console.log(doc);
-      const { id, parent, title, content } = doc;
+      const docLi = document.querySelector(`li[data-id="${doc.id}"]`);
+      const { parent } = docLi.dataset;
+      const { title, content } = doc;
       $trash.setState({
         ...$trash.state,
-        [id]: {
+        [doc.id]: {
           parent: parent,
           title: title,
           content: content,
         },
       });
       $trash.render();
-      // const favList = getItem('favorites', {});
-      // const toggled = getItem('toggled', []);
-      // const { id } = doc;
-      // const togIdx = toggled.indexOf(id);
-      // if (togIdx !== -1) {
-      //   toggled.splice(togIdx, 1);
-      //   setItem('toggled', toggled);
-      // }
-      // if (favList[id]) {
-      //   delete favList[id];
-      //   setItem('favorites', favList);
-      // }
-      // if (id !== null) {
-      //   await request(`/documents/${id}`, {
-      //     method: 'DELETE',
-      //   });
-      //   history.replaceState(null, null, `/`);
-      //   editor.setState({
-      //     id: null,
-      //     title: '',
-      //     content: '',
-      //   });
-      //   fetchList();
-      // }
+      const favList = getItem('favorites', {});
+      const toggled = getItem('toggled', []);
+      const { id } = doc;
+      const togIdx = toggled.indexOf(id);
+      if (togIdx !== -1) {
+        toggled.splice(togIdx, 1);
+        setItem('toggled', toggled);
+      }
+      if (favList[id]) {
+        delete favList[id];
+        setItem('favorites', favList);
+      }
+      if (id !== null) {
+        await request(`/documents/${id}`, {
+          method: 'DELETE',
+        });
+        history.replaceState(null, null, `/`);
+        editor.setState({
+          id: null,
+          title: '',
+          content: '',
+        });
+        fetchList();
+      }
     },
     onFav: async (doc) => {
       const { id, title } = doc;
