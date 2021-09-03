@@ -35,3 +35,6 @@
   - emoji와 title 칸 분리
   - emojoi와 title 사이에 delimiter 추가한 뒤 붙여서 서버에 전송
   - 서버에서 불러올 때 delimiter 기준으로 split한 뒤 렌더링
+- [x] Documents List 토글 기능
+  - 상단의 토글 버튼 클릭하면 문서 리스트 사라짐
+  - 다시 누르면 리스트가 나타남

@@ -3,17 +3,22 @@ import Editor from './Editor.js';
 import { request } from './api.js';
 import { initRouter, push } from './router.js';
 import { getItem, setItem } from './storage.js';
+import Trash from './Trash.js';
 
 export default function App({ $target }) {
   const docList = new DocList({
     $target,
     initialState: [],
-    onClick: ($li) => {
+    onClick: async ($li) => {
+      console.log($li);
       if ($li.tagName === 'H4') {
         push('/');
       } else {
-        const { id } = $li.dataset;
-        fetchDoc(id);
+        const { id, parent } = $li.dataset;
+        history.pushState(null, null, `/documents/${id}`);
+        await fetchDoc(id);
+        editor.setState({ ...editor.state, parent: parent });
+        console.log(editor.state);
       }
     },
     onAdd: ($button) => {
@@ -34,6 +39,24 @@ export default function App({ $target }) {
         setItem('toggled', togList);
       }
       docList.render();
+    },
+    onTrash: (xPos, yPos) => {
+      /*
+      trash state
+      {
+        id : {
+          titld,
+          content, 
+          parent
+        }
+      }
+      */
+      const $trash = new Trash({
+        $target: $target,
+        initialState: {},
+        xPos: xPos,
+        yPos: yPos,
+      });
     },
   });
 
@@ -62,8 +85,19 @@ export default function App({ $target }) {
               parent: id,
             }),
           });
-          push(`/documents/${createdDoc.id}`);
-          //editor.setState({ ...createdDoc, content: '' });*/
+          if (!isEmptyString(content)) {
+            await request(`/documents/${createdDoc.id}`, {
+              method: 'PUT',
+              body: JSON.stringify({
+                title: isEmptyString(title) ? '제목 없음' : title,
+                content: content,
+              }),
+            });
+          }
+          history.replaceState(null, null, `/documents/${createdDoc.id}`);
+          editor.setState({ ...createdDoc, content: content });
+          fetchList();
+          //push(`/documents/${createdDoc.id}`);
         } else {
           await request(`/documents/${id}`, {
             method: 'PUT',
@@ -77,11 +111,14 @@ export default function App({ $target }) {
             favList[id] = title;
             setItem('favorites', { ...favList });
           }
-          push(`/documents/${id}`);
+          //push(`/documents/${id}`);
+          fetchList();
         }
       }, 2000);
     },
     onRemove: async (doc) => {
+      console.log(doc);
+
       const favList = getItem('favorites', {});
       const toggled = getItem('toggled', []);
       const { id } = doc;
@@ -98,7 +135,13 @@ export default function App({ $target }) {
         await request(`/documents/${id}`, {
           method: 'DELETE',
         });
-        push(`/`);
+        history.replaceState(null, null, `/`);
+        editor.setState({
+          id: null,
+          title: '',
+          content: '',
+        });
+        fetchList();
       }
     },
     onFav: async (doc) => {
@@ -136,22 +179,32 @@ export default function App({ $target }) {
     const doc = await request(`/documents/${id}`, {
       method: 'GET',
     });
-    if (doc) {
+    console.log('fetchedDoc', doc);
+    if (doc === undefined) {
+      history.replaceState(null, null, `/`);
+      editor.setState({
+        id: null,
+        title: '',
+        content: '',
+      });
+    } else if (doc) {
       editor.setState({
         id: id,
         ...doc,
       });
       //push(`/documents/${id}`);
-      history.pushState(null, null, `/documents/${id}`);
+      //history.pushState(null, null, `/documents/${id}`);
     }
   };
 
   window.addEventListener('popstate', (e) => {
+    console.log('back');
     this.route();
   });
 
   this.route = async () => {
     const { pathname } = window.location;
+    console.log('routing');
     await fetchList();
     if (pathname === '/') {
       editor.setState({

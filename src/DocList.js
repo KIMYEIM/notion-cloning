@@ -1,7 +1,7 @@
 import { request } from './api.js';
 import { getItem, setItem } from './storage.js';
 
-export default function DocList({ $target, initialState, onClick, onAdd, onToggle }) {
+export default function DocList({ $target, initialState, onClick, onAdd, onToggle, onTrash }) {
   const $list = document.createElement('div');
   $list.id = 'list';
 
@@ -16,19 +16,19 @@ export default function DocList({ $target, initialState, onClick, onAdd, onToggl
     return $array.includes(id);
   };
 
-  const childDoc = ($toggled, $child) => {
+  const childDoc = ($toggled, $child, parent = null, depth = 1) => {
     return $child.length
       ? `
       <ul>
       ${$child
         .map(
           ({ id, title, documents }) =>
-            `<li class="doc" data-id=${id}>
+            `<li class="doc" data-parent=${parent} data-id=${id} style="padding-left: ${depth * 15}px">
             <button class="toggle" style="visibility: ${documents.length ? 'visible' : 'hidden'}">
             ${isCheck($toggled, id) ? '▼' : '▶︎'}</button>
             ${title} 
             <button class="add">+</button></li>
-          ${isCheck($toggled, id) ? childDoc($toggled, documents) : ''}`
+          ${isCheck($toggled, id) ? childDoc($toggled, documents, id, depth + 1) : ''}`
         )
         .join('')}
       </ul>
@@ -51,6 +51,7 @@ export default function DocList({ $target, initialState, onClick, onAdd, onToggl
       </ul>
     <h4 class="doc">개인 페이지 <button class="add">+</button></h4>
       ${childDoc($toggled, this.state)}
+    <h4 class="trash">🗑&nbsp;휴지통</h4>
       <div style="height: 70px"></div>
       <button class="new-doc" >+ 새 페이지</button>
       `;
@@ -69,6 +70,10 @@ export default function DocList({ $target, initialState, onClick, onAdd, onToggl
       case 'doc':
         onClick(e.target);
         break;
+      case 'trash':
+        console.log(e.target);
+        console.log(e.clientX, e.clientY);
+        onTrash(e.clientX, e.clientY);
       default:
         break;
     }

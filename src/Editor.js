@@ -3,17 +3,16 @@ export default function Editor({ $target, initialState, onEditing, onRemove, onF
   $editor.id = 'editor';
   $target.appendChild($editor);
 
-  let isInit = true;
-
-  /*
   $editor.innerHTML = `
+          <button class="hide"><<</button>
           <div id="editor-buttons">
           <button class="add-fav">즐겨찾기</button><button class="remove">삭제</button>
           </div>
-          <input id="title" autoComplete="off" type="text" name="title" style="width: 600px" placeholder="제목 없음"/>
-          <textarea id="content" name="content" style="width: 600px; height: 480px; padding: 8px" placeholder="내용을 입력하세요"></textarea>
+          <input id="emoji" type="text" name="emoji" autoComplete="off" placeholder="🙂"/>
+          <input id="title" autoComplete="off" type="text" name="title" placeholder="제목 없음"/>
+          <textarea id="content" name="content" placeholder="내용을 입력하세요"></textarea>
           <div id="child-docs"></div>
-        `;*/
+        `;
 
   this.state = initialState;
 
@@ -24,24 +23,33 @@ export default function Editor({ $target, initialState, onEditing, onRemove, onF
 
   this.render = () => {
     console.log('render editor');
-    console.error(this.state);
-    $editor.innerHTML = `
-          <button class="hide"><<</button>
-          <div id="editor-buttons">
-          <button class="add-fav">즐겨찾기</button><button class="remove">삭제</button>
-          </div>
-          <input id="emoji" type="text" name="emoji" autoComplete="off" placeholder="🙂"/>
-          <input id="title" autoComplete="off" type="text" name="title" placeholder="제목 없음"/>
-          <textarea id="content" name="content" placeholder="내용을 입력하세요">
-          </textarea>
-          ${
-            this.state.documents
-              ? `<ul id="child-docs">
-                ${this.state.documents.map(({ id, title }) => `<li class="child" data-id="${id}">${title}</li>`).join('')}</ul>`
-              : ''
-          }
-        `;
+    const $childDocs = $editor.querySelector('#child-docs');
+    if (this.state.documents) {
+      $childDocs.innerHTML = `<ul id="child-docs">
+                ${this.state.documents.map(({ id, title }) => `<li class="child" data-id="${id}">${title}</li>`).join('')}
+                </ul>`;
+    } else {
+      $childDocs.innerHTML = '';
+    }
 
+    // $editor.innerHTML = `
+    //       <button class="hide"><<</button>
+    //       <div id="editor-buttons">
+    //       <button class="add-fav">즐겨찾기</button><button class="remove">삭제</button>
+    //       </div>
+    //       <input id="emoji" type="text" name="emoji" autoComplete="off" placeholder="🙂"/>
+    //       <input id="title" autoComplete="off" type="text" name="title" placeholder="제목 없음"/>
+    //       <textarea id="content" name="content" placeholder="내용을 입력하세요">
+    //       </textarea>
+    //       ${
+    //         this.state.documents
+    //           ? `<ul id="child-docs">
+    //             ${this.state.documents.map(({ id, title }) => `<li class="child" data-id="${id}">${title}</li>`).join('')}</ul>`
+    //           : ''
+    //       }
+    //     `;
+
+    //}
     // if (this.state.documents) {
     //   $editor.innerHTML += `
     //   <ul id="child-docs">
@@ -55,7 +63,7 @@ export default function Editor({ $target, initialState, onEditing, onRemove, onF
     //     .join('')}
     //   </ul>
     // `;
-    //}
+    // }
     const [emoji, title] = this.state.title.split('<span>&nbsp;</span>');
     if (title) {
       $editor.querySelector('[name=emoji]').value = emoji;
@@ -68,22 +76,30 @@ export default function Editor({ $target, initialState, onEditing, onRemove, onF
   };
 
   $editor.addEventListener('keyup', (e) => {
+    console.error(this.state);
     const { id } = e.target;
-    if (id === 'title') {
-      const emoji = $editor.querySelector('[name=emoji]');
-      const nextState = {
-        ...this.state,
-        title: emoji.value + '<span>&nbsp;</span>' + e.target.value,
-      };
-      //this.setState(nextState);
-      onEditing(nextState);
-    } else if (id === 'content') {
-      const nextState = {
-        ...this.state,
-        content: e.target.value,
-      };
-      //this.setState(nextState);
-      onEditing(nextState);
+    switch (id) {
+      case 'title':
+      case 'emoji':
+        const emoji = $editor.querySelector('[name=emoji]');
+        const title = $editor.querySelector('[name=title]');
+        const titleModified = {
+          ...this.state,
+          title: emoji.value + '<span>&nbsp;</span>' + title.value,
+        };
+        this.state = titleModified;
+        onEditing(this.state);
+        break;
+      case 'content':
+        const contentModified = {
+          ...this.state,
+          content: e.target.value,
+        };
+        this.state = contentModified;
+        onEditing(this.state);
+        break;
+      default:
+        break;
     }
   });
 
