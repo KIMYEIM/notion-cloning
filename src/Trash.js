@@ -1,4 +1,6 @@
-export default function Trash({ $target, initialState, xPos, yPos }) {
+import { getItem, setItem } from './storage.js';
+
+export default function Trash({ $target, initialState, xPos, yPos, onRestore }) {
   const $trash = document.createElement('div');
   $trash.id = 'trash-list';
   $trash.style.position = 'absolute';
@@ -10,14 +12,20 @@ export default function Trash({ $target, initialState, xPos, yPos }) {
   $trash.style.color = '#383530';
   $trash.style.borderRadius = '5%';
   $trash.style.padding = '30px';
-  $trash.style.top = `${yPos}`;
-  $trash.style.left = `${xPos}`;
 
-  this.state = initialState;
+  this.state = getItem('trash', {});
+  this.xPos = xPos;
+  this.yPos = yPos;
+
+  this.setPos = (newX, newY) => {
+    this.xPos = newX;
+    this.yPos = newY;
+  };
 
   this.setState = (nextState) => {
     this.state = nextState;
-    this.render();
+    setItem('trash', nextState);
+    //this.render();
   };
 
   this.render = () => {
@@ -27,7 +35,14 @@ export default function Trash({ $target, initialState, xPos, yPos }) {
       $target.removeChild($oldTrash);
     }
 
+    console.log(this.xPos, this.yPos);
+
+    $trash.style.top = `${this.yPos}`;
+    $trash.style.left = `${this.xPos}`;
+
     $target.appendChild($trash);
+
+    const $trashList = getItem('trash', {});
 
     $trash.innerHTML = `
     <button class="all-remove">모두 비우기</button><button class="close-trash">닫기</button>
@@ -59,6 +74,13 @@ export default function Trash({ $target, initialState, xPos, yPos }) {
         $target.removeChild($trash);
         break;
       case 'eliminate':
+        const $li = e.target.closest('li');
+        const { id } = $li.dataset;
+        console.log(id);
+        console.log(this.state);
+        delete this.state[id];
+        setItem('trash', this.state);
+        this.render();
         break;
       case 'restore':
         break;

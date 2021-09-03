@@ -6,6 +6,13 @@ import { getItem, setItem } from './storage.js';
 import Trash from './Trash.js';
 
 export default function App({ $target }) {
+  const $trash = new Trash({
+    $target: $target,
+    initialState: {},
+    xPos: 0,
+    yPos: 0,
+  });
+
   const docList = new DocList({
     $target,
     initialState: [],
@@ -41,6 +48,8 @@ export default function App({ $target }) {
       docList.render();
     },
     onTrash: (xPos, yPos) => {
+      $trash.setPos(xPos, yPos);
+      $trash.render();
       /*
       trash state
       {
@@ -51,12 +60,12 @@ export default function App({ $target }) {
         }
       }
       */
-      const $trash = new Trash({
-        $target: $target,
-        initialState: {},
-        xPos: xPos,
-        yPos: yPos,
-      });
+      // const $trash = new Trash({
+      //   $target: $target,
+      //   initialState: {},
+      //   xPos: xPos,
+      //   yPos: yPos,
+      // });
     },
   });
 
@@ -118,31 +127,40 @@ export default function App({ $target }) {
     },
     onRemove: async (doc) => {
       console.log(doc);
-
-      const favList = getItem('favorites', {});
-      const toggled = getItem('toggled', []);
-      const { id } = doc;
-      const togIdx = toggled.indexOf(id);
-      if (togIdx !== -1) {
-        toggled.splice(togIdx, 1);
-        setItem('toggled', toggled);
-      }
-      if (favList[id]) {
-        delete favList[id];
-        setItem('favorites', favList);
-      }
-      if (id !== null) {
-        await request(`/documents/${id}`, {
-          method: 'DELETE',
-        });
-        history.replaceState(null, null, `/`);
-        editor.setState({
-          id: null,
-          title: '',
-          content: '',
-        });
-        fetchList();
-      }
+      const { id, parent, title, content } = doc;
+      $trash.setState({
+        ...$trash.state,
+        [id]: {
+          parent: parent,
+          title: title,
+          content: content,
+        },
+      });
+      $trash.render();
+      // const favList = getItem('favorites', {});
+      // const toggled = getItem('toggled', []);
+      // const { id } = doc;
+      // const togIdx = toggled.indexOf(id);
+      // if (togIdx !== -1) {
+      //   toggled.splice(togIdx, 1);
+      //   setItem('toggled', toggled);
+      // }
+      // if (favList[id]) {
+      //   delete favList[id];
+      //   setItem('favorites', favList);
+      // }
+      // if (id !== null) {
+      //   await request(`/documents/${id}`, {
+      //     method: 'DELETE',
+      //   });
+      //   history.replaceState(null, null, `/`);
+      //   editor.setState({
+      //     id: null,
+      //     title: '',
+      //     content: '',
+      //   });
+      //   fetchList();
+      // }
     },
     onFav: async (doc) => {
       const { id, title } = doc;
