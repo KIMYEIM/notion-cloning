@@ -9,11 +9,10 @@ export default function App({ $target }) {
   const $trash = new Trash({
     $target: $target,
     initialState: {},
-    xPos: 70,
-    yPos: 290,
+    xPos: 0,
+    yPos: 0,
     onRestore: async (docInfo) => {
       const { parent, title, content } = docInfo;
-      //
       const createdDoc = await request(`/documents`, {
         method: 'POST',
         body: JSON.stringify({
@@ -30,17 +29,13 @@ export default function App({ $target }) {
           }),
         });
       }
-      //history.replaceState(null, null, `/documents/${createdDoc.id}`);
-      //editor.setState({ ...createdDoc, content: content });
       fetchList();
     },
   });
 
   const docList = new DocList({
     $target,
-    initialState: [],
     onClick: async ($li) => {
-      console.log($li);
       if ($li.tagName === 'H4') {
         push('/');
       } else {
@@ -48,7 +43,6 @@ export default function App({ $target }) {
         history.pushState(null, null, `/documents/${id}`);
         await fetchDoc(id);
         editor.setState({ ...editor.state, parent: parent });
-        console.log(editor.state);
       }
     },
     onAdd: ($button) => {
@@ -72,23 +66,6 @@ export default function App({ $target }) {
     },
     onTrash: (xPos, yPos) => {
       $trash.setPos(xPos, yPos);
-      $trash.render();
-      /*
-      trash state
-      {
-        id : {
-          titld,
-          content, 
-          parent
-        }
-      }
-      */
-      // const $trash = new Trash({
-      //   $target: $target,
-      //   initialState: {},
-      //   xPos: xPos,
-      //   yPos: yPos,
-      // });
     },
   });
 
@@ -139,7 +116,7 @@ export default function App({ $target }) {
               method: 'PUT',
               body: JSON.stringify({
                 title: isEmptyString(title) ? '제목 없음' : title,
-                content: content,
+                content,
               }),
             });
           }
@@ -173,12 +150,11 @@ export default function App({ $target }) {
       $trash.setState({
         ...$trash.state,
         [doc.id]: {
-          parent: parent,
-          title: title,
-          content: content,
+          parent,
+          title,
+          content,
         },
       });
-      $trash.render();
       const favList = getItem('favorites', {});
       const toggled = getItem('toggled', []);
       const { id } = doc;
@@ -239,7 +215,6 @@ export default function App({ $target }) {
     const doc = await request(`/documents/${id}`, {
       method: 'GET',
     });
-    console.log('fetchedDoc', doc);
     if (doc === undefined) {
       history.replaceState(null, null, `/`);
       editor.setState({
@@ -249,7 +224,7 @@ export default function App({ $target }) {
       });
     } else if (doc) {
       editor.setState({
-        id: id,
+        id,
         ...doc,
       });
       //push(`/documents/${id}`);
@@ -264,7 +239,6 @@ export default function App({ $target }) {
 
   this.route = async () => {
     const { pathname } = window.location;
-    console.log('routing');
     await fetchList();
     if (pathname === '/') {
       editor.setState({
