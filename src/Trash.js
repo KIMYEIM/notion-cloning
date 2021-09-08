@@ -1,6 +1,6 @@
 import { getItem, setItem } from './storage.js';
 
-export default function Trash({ $target, initialState, xPos, yPos, onRestore }) {
+export default function Trash({ $target, xPos, yPos, onRestore }) {
   const $trash = document.createElement('div');
   $trash.id = 'trash-list';
 
@@ -11,12 +11,12 @@ export default function Trash({ $target, initialState, xPos, yPos, onRestore }) 
   this.setPos = (newX, newY) => {
     this.xPos = newX;
     this.yPos = newY;
+    this.render();
   };
 
   this.setState = (nextState) => {
     this.state = nextState;
     setItem('trash', nextState);
-    //this.render();
   };
 
   this.render = () => {
