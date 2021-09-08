@@ -1,7 +1,7 @@
 import { request } from './api.js';
 import { getItem, setItem } from './storage.js';
 
-export default function DocList({ $target, initialState, onClick, onAdd, onToggle, onTrash }) {
+export default function DocList({ $target, onClick, onAdd, onToggle, onTrash }) {
   const $list = document.createElement('div');
   $list.id = 'list';
 
@@ -37,7 +37,6 @@ export default function DocList({ $target, initialState, onClick, onAdd, onToggl
   };
 
   this.render = () => {
-    console.log('render docList');
     const $toggled = getItem('toggled', []);
     const $favorites = getItem('favorites', []);
 
